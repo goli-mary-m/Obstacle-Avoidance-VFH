@@ -1,6 +1,7 @@
 <launch>
 
-    <node pkg="obstacle_avoidance_vfh" type="vfh.py" name="vfh" output="screen"></node>
+    <node pkg="obstacle_avoidance_vfh" type="vfh.py" name="vfh_node" output="screen"></node>
+    <node pkg="obstacle_avoidance_vfh" type="control.py" name="control_node" output="screen"></node>
 
     <include file="$(find turtlebot3_gazebo)/launch/custom_world.launch">
         <arg name="model" value="waffle"/>
