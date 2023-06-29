@@ -1,0 +1,14 @@
+<launch>
+
+    <node pkg="obstacle_avoidance_vfh" type="vfh.py" name="vfh" output="screen"></node>
+
+    <include file="$(find turtlebot3_gazebo)/launch/custom_world.launch">
+        <arg name="model" value="waffle"/>
+        <arg name="world_name_file" value="/home/maryam/Desktop/vfh_map.world"/>
+        <arg name="x_pos" value="0.0"/>
+        <arg name="y_pos" value="0.0"/>
+        <arg name="z_pos" value="0.0"/>
+        <arg name="yaw" value="0.0"/>
+    </include>
+
+</launch>
