@@ -130,7 +130,6 @@ class VFH:
                 # create new ActiveCell object with i, j
                 active_cell = ActiveCell(i, j)
                 cells.append(active_cell)
-                # self.active_cells[cnt_x][cnt_y] = active_cell
 
                 # find index of sector (k) for current cell
                 betha = active_cell.calculate_betha(robot_x, robot_y)
@@ -162,7 +161,7 @@ class VFH:
                     if(curr_cell.i == i and curr_cell.j == j):
                         return curr_cell
                     
-        return None            
+        return None                
 
 
     def run(self):
@@ -206,10 +205,19 @@ class VFH:
                 self.sectors[k].set_polar_obstacle_density(h_k)  
 
             # apply smoothing function and calculate smoothed polar obstacle density (h_k_prime)
-
-            # TODO:
-            # - calculate h_k_prime
-            # - add h_k_prime to vfh_arr
+            for k in range(0, self.n_sectors):
+                h_k_prime = 0
+                # iterate over h_k values from index k-l+1 to k+l-1
+                for k_prime in range(k-self.l+1, ((k+self.l-1)%self.n_sectors)+1):
+                    if(k_prime == k):
+                        h_k_prime += self.sectors[k_prime].h_k * self.l
+                    else:
+                        h_k_prime += self.sectors[k_prime].h_k * 2
+                h_k_prime += self.sectors[k-1] + self.sectors[k+1]
+                h_k_prime /= 2*self.l + 1            
+                        
+                self.sectors[k].set_smoothed_polar_obstacle_density(h_k_prime)        
+                self.vfh_arr.append(h_k_prime)
      
 
 
