@@ -3,6 +3,7 @@
 import rospy
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
+from obstacle_avoidance_vfh.msg import PolarHistogram
 from math import sqrt, cos, sin
 import numpy as np
 
@@ -61,6 +62,8 @@ class VFH:
 
         # vector field histogram array 
         self.vfh_arr = []
+        self.polar_histogram = PolarHistogram()
+        self.vfh_publisher = rospy.Publisher('polar_histogram', PolarHistogram, queue_size=10)
     
 
     def get_position(self):
@@ -149,7 +152,11 @@ class VFH:
                 h_k_prime /= 2*self.l + 1            
                         
                 self.sectors[k].set_smoothed_polar_obstacle_density(h_k_prime)        
-                self.vfh_arr.append(h_k_prime)    
+                self.vfh_arr.append(h_k_prime)
+
+            # publish polar histogram
+            self.polar_histogram.histogram = self.vfh_arr
+            self.vfh_publisher.publish(self.polar_histogram)    
      
 
 if __name__ == "__main__":
