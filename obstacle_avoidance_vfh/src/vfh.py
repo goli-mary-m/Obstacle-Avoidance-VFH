@@ -117,6 +117,7 @@ class VFH:
         
         while not rospy.is_shutdown():
 
+            self.vfh_arr = []
             robot_x, robot_y = self.get_position()
 
             self.window_x_min = robot_x - (self.window_size-1)/2
