@@ -55,7 +55,7 @@ class VFH:
         self.window_y_min = 0
         self.window_y_max = 0
 
-        # sections
+        # sectors
         self.angular_resolution = 5
         self.n_sectors = int(360/self.angular_resolution)
         self.sectors = []
@@ -154,6 +154,10 @@ class VFH:
                         
                 self.sectors[k].set_smoothed_polar_obstacle_density(h_k_prime)        
                 self.vfh_arr.append(h_k_prime)
+
+            # normalize
+            max_h = max(self.vfh_arr)
+            self.vfh_arr = [h/max_h for h in self.vfh_arr]    
 
             # publish polar histogram
             self.polar_histogram.histogram = self.vfh_arr
