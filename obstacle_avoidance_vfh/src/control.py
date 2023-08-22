@@ -59,14 +59,14 @@ class Controller:
         self.angular_resolution = 5
         self.n_sectors = int(360/self.angular_resolution)
 
-        self.threshold = 0.6
-        self.s_max = 15
+        self.threshold = 5
+        self.s_max = 10
 
         # starting point and target point
         self.x_src = 0
         self.y_src = 0
-        self.x_des = 7
-        self.y_des = 13
+        self.x_des = 13
+        self.y_des = 7
 
         self.target_sector = None
 
@@ -111,14 +111,22 @@ class Controller:
 
         robot_x, robot_y = self.get_position()
 
-        yaw = self.get_heading()
-        goal_angle = atan2((self.y_des-robot_y), (self.x_des-robot_x))		
-        rotation_angle = abs(goal_angle - yaw)
+        self.add_intermediate_target()
 
-        if(goal_angle - yaw >= 0): # target -> left
-            target_angle = degrees(rotation_angle)
-        else: # target -> right
-            target_angle = 360 - degrees(rotation_angle)
+        yaw = self.get_heading()
+        goal_angle = atan2((self.y_des-robot_y), (self.x_des-robot_x))	
+        rotation_angle = radians(180) - abs(abs(yaw-goal_angle) - radians(180))
+
+        if(yaw > 0):
+            if(goal_angle > yaw-radians(180) and goal_angle < yaw):
+                target_angle = 360 - degrees(rotation_angle)
+            else:
+                target_angle = degrees(rotation_angle)
+        else:
+            if(goal_angle > yaw and goal_angle < yaw+radians(180)):
+                target_angle = degrees(rotation_angle)
+            else:
+                target_angle = 360 - degrees(rotation_angle)
 
         for k in range(0, self.n_sectors):
             sector_start = self.angular_resolution * (k)
@@ -127,6 +135,44 @@ class Controller:
             if(sector_start <= target_angle < sector_end):
                 self.target_sector = k
                 break
+
+
+    def add_intermediate_target(self):
+
+        robot_x, robot_y = self.get_position()
+        print("robot: x, y -> ", robot_x, robot_y)
+
+        epsilon = 0.1
+
+        if (4.5-epsilon <= robot_x < 4.5+epsilon) and (0.1-epsilon <= robot_y < 0.1+epsilon):
+            print("change target point")
+            self.threshold = 4
+            self.x_des = 3
+            self.y_des = 6
+
+        if (3-epsilon <= robot_x < 3+epsilon) and (4.4-epsilon <= robot_y < 4.4+epsilon):
+            print("change target point")
+            self.threshold = 7
+            self.x_des = 2.5
+            self.y_des = 1.5
+
+        if (2.5-epsilon <= robot_x < 2.5+epsilon) and (1.4-epsilon <= robot_y < 1.4+epsilon):
+            print("change target point")
+            self.threshold = 5
+            self.x_des = 0
+            self.y_des = 1.3
+
+        if (1.2-epsilon <= robot_x < 1.2+epsilon) and (1.2-epsilon <= robot_y < 1.2+epsilon):
+            print("change target point")
+            self.threshold = 5
+            self.x_des = 1
+            self.y_des = 5.5   
+
+        if (1-epsilon <= robot_x < 1+epsilon) and (5.1-epsilon <= robot_y < 5.1+epsilon):
+            print("change target point")
+            self.threshold = 7
+            self.x_des = 3.5
+            self.y_des = 6.5   
 
 
     def find_angle(self):
@@ -200,6 +246,7 @@ class Controller:
                     
                 print("k_f: ", k_f)
 
+
                 # find angle
                 if(k_f >= self.n_sectors/2):
                     k_f -= self.n_sectors
@@ -218,7 +265,6 @@ class Controller:
 
         # create histogram plot
         fig, ax = plt.subplots()
-        ax.set_ylim(0, 1)
         for i in range(len(self.histogram)):
                 ax.bar(i, self.histogram[i], color='green')
         
@@ -228,7 +274,6 @@ class Controller:
             ax.cla()
             for i in range(len(self.histogram)):
                 ax.bar(i, self.histogram[i], color='green')
-            ax.set_ylim(0, 1)
             plt.pause(0.5)
             plt.draw()
 
@@ -257,6 +302,8 @@ class Controller:
                 self.cmd_publisher.publish(twist) 
 
             print()
+
+            rospy.sleep(1)
         
 
 if __name__ == "__main__":

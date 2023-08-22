@@ -94,12 +94,15 @@ class VFH:
 
     def is_in_window(self, angle, distance):
 
-        robot_distance = (self.window_size-1)/2
+        # find d_max if active window is square
+        # robot_distance = (self.window_size-1)/2
+        # if((angle in range(45, 135)) or (angle in range(225, 315))):
+        #     d_max = robot_distance/abs(sin(angle))
+        # else:   
+        #     d_max = robot_distance/abs(cos(angle))
 
-        if((angle in range(45, 135)) or (angle in range(225, 315))):
-            d_max = robot_distance/abs(sin(angle))
-        else:   
-            d_max = robot_distance/abs(cos(angle))
+        # find d_max if active window is circular
+        d_max = self.a/self.b
 
         if(distance <= d_max):
             return True
@@ -155,9 +158,9 @@ class VFH:
                 self.sectors[k].set_smoothed_polar_obstacle_density(h_k_prime)        
                 self.vfh_arr.append(h_k_prime)
 
-            # normalize
-            max_h = max(self.vfh_arr)
-            self.vfh_arr = [h/max_h for h in self.vfh_arr]    
+            # normalize histogram
+            # max_h = max(self.vfh_arr)
+            # self.vfh_arr = [h/max_h for h in self.vfh_arr]    
 
             # publish polar histogram
             self.polar_histogram.histogram = self.vfh_arr
